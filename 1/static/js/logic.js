@@ -56,13 +56,13 @@ d3.json(baseURL).then(function(earthquakeData, err) {
 });
 
 var legend = L.control({
-    position: "bottom left"
+    position: "bottom right"
 });
 
 legend.onAdd = function(){
-    var div = L.DomUtil.create("div", "info legend");
+    var div = L.DomUtil.create("div", "legend");
 
-    var grades = [5,4,3,2,1];
+    var grades = [5,4,3,2,1,0];
     var colors = [
         "red",
         "redorange",
