@@ -2,16 +2,23 @@ var myMap = L.map("map", {
     center: [40.7, -73.95],
     zoom: 2
   });
-  
-  
 
-L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
-  attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
-  maxZoom: 18,
-  id: "streets-v11",
-  accessToken: API_KEY
-}).addTo(myMap)
 
+
+var graymap = L.tileLayer(
+    "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
+{
+    attribution:
+    "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
+    tileSize: 512,
+    maxZoom: 18,
+    zoomOffset: -1,
+    id: "mapbox/light-v10",
+    accessToken: API_KEY
+    }
+  );
+  
+graymap.addTo(myMap)
 
 
 
@@ -20,7 +27,7 @@ d3.json(baseURL).then(function(earthquakeData, err) {
     L.geoJson(earthquakeData,{
         pointToLayer: function(features, latlng){
             return L.circleMarker(latlng, {
-                color: "blue", 
+                color: "red", 
                 fillColor: getColor(latlng.alt),
                 stroke: true, 
                 
@@ -29,48 +36,50 @@ d3.json(baseURL).then(function(earthquakeData, err) {
             })
         }
     }).addTo(myMap);
-    function colorStyle(magnitude){
-        var color = "";
-        if (magnitude > 5){
-            color = "#191970";
+    function getColor(magnitude){
+        switch (true){
+            case magnitude > 5:
+                return "red";;
+            case magnitude > 4:
+                return "redOrange";
+            case magnitude > 3:
+                return "orange";
+            case magnitude > 2:
+                return "gold";
+            case magnitude > 1:
+                return "yellow";
+            default:
+                return "blue";
+            
         }
-        else if (magnitude > 4){
-            color = "#000080"
-        }
-        else if (magnitude > 3){
-            color = "#0000CD"
-        }
-        else if (magnitude > 2){
-            color = "#0000FF"
-        }
-        else if (magnitude > 1){
-            color = "#00CED1"
-        }
-        return 
-            color;
     }
 });
 
-var legend = L.control({position: "bottomleft"});
-legend.onAdd = function(myMap){
-    var div = L.DomUtil.create("div", "info legend"),
-        magnitude = [0,1,2,3,4,5],
-        labels = [],
-        from, to;
+var legend = L.control({
+    position: "bottom left"
+});
 
-    div.innerHTML = labels.join('<br>');
-    for (var i = 0; i<magnitude.length; i++){
-        from = magnitude[i],
-        to = magnitude[i +1];
+legend.onAdd = function(){
+    var div = L.DomUtil.create("div", "info legend");
 
-        labels.push(
-            '<i style="background:' + colorStyle(from + 1) + '"></i> ' +
-				  from + (to ? '&ndash;' + to : '+'));
+    var grades = [5,4,3,2,1];
+    var colors = [
+        "red",
+        "redorange",
+        "orange",
+        "gold",
+        "yellow",
+        "blue"
+    ];
+    for (var i = 0; i<grades.length; i++){
+        div.innerHTML += "<i style = 'backgroud : " + colors[i] + "></i"
+        + grades[i] + (grades[i +1]? "&ndash;" + grades[i+1]+ "<br>": "+")
     }
     return div;
-    };
-    legend.addTo(myMap);  
-}
+};
+
+legend.addTo(myMap);
+
 
 
 
